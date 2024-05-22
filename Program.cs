@@ -6,8 +6,13 @@ class DBManipulation
 {
     static void Main(string[] args)
     {
+        // add your excel sheet file location
         string excelPath = @"C:\Users\DELL\Downloads\data.xlsx";
+
+        // add connection string of your database
         string connectionString = "Server=YourServerName;Database=YourDatabaseName;Trusted_Connection=True;";
+        
+        // add table name 
         string tableName = "Location";
        
         Console.WriteLine("Initializing........");
