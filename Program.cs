@@ -8,7 +8,8 @@ class DBManipulation
     {
         string excelPath = @"C:\Users\DELL\Downloads\data.xlsx";
         string connectionString = "Server=YourServerName;Database=YourDatabaseName;Trusted_Connection=True;";
-
+        string tableName = "Location";
+       
         Console.WriteLine("Initializing........");
         Console.WriteLine("Reading xlsx file: " + excelPath);
 
@@ -18,10 +19,11 @@ class DBManipulation
         {
             var worksheet = workbook.Worksheet(1);
             var rows = worksheet.RowsUsed();
-
-            Console.WriteLine("Enabling Identity Insert...");
-            SetIdentityInsert(connectionString, "Location", true);
-            Console.WriteLine("Enabled Identity Insert");
+            int counter = 0;
+            // comment/uncomment below 3 lines if you need to turn on indentity insert
+            //Console.WriteLine("Enabling Identity Insert...");
+            //SetIdentityInsert(connectionString, tableName, true);
+            //Console.WriteLine("Enabled Identity Insert");
             try
             {
                 // Iterate through the rows
@@ -30,37 +32,37 @@ class DBManipulation
                     int id = int.Parse(row.Cell(1).GetValue<string>());
                     string column1 = row.Cell(2).GetValue<string>();
                     string column2 = row.Cell(3).GetValue<string>();
-                    string tableName = row.Cell(4).GetValue<string>();
-
+                    counter++;
                     // Insert data into SQL Server
-                    InsertData(connectionString, id, column1, column2, tableName);
+                    InsertData(connectionString, column1, column2, tableName);
                 }
+                Console.WriteLine($"Total {counter} record(s) inserted.");
             }
             finally
             {
 
+                // comment/uncomment below 3 lines if you need to turn on indentity insert
 
                 // Disable IDENTITY_INSERT after the operation
-                Console.WriteLine("Disabling Identity Insert...");
+                //Console.WriteLine("Disabling Identity Insert...");
 
-                SetIdentityInsert(connectionString, "Location", false);
+                //SetIdentityInsert(connectionString, tableName, false);
 
-                Console.WriteLine("Disabled Identity Insert");
+                //Console.WriteLine("Disabled Identity Insert");
             }
 
         }
     }
 
-    static void InsertData(string connectionString, int id, string column1, string column2, string tblName)
+
+    static void InsertData(string connectionString, string column1, string column2, string tblName)
     {
-        string tableName = tblName;
-        string query = $"INSERT INTO {tableName} (Id, LocationId, Name, Status) VALUES (@Id, @LocationId, @Name, @Status)";
+        string query = $"INSERT INTO {tblName} (LocationId, Name, Status) VALUES (@LocationId, @Name, @Status)";
         Console.WriteLine("Inserting data into DB");
 
         using (SqlConnection connection = new SqlConnection(connectionString))
         {
             SqlCommand command = new SqlCommand(query, connection);
-            command.Parameters.AddWithValue("@Id", id);
             command.Parameters.AddWithValue("@LocationId", column1);
             command.Parameters.AddWithValue("@Name", column2);
             command.Parameters.AddWithValue("@Status", 1);
